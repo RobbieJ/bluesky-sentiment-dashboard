@@ -44,3 +44,4 @@ venv/
 # OS-generated files
 ehthumbs.db
 Thumbs.db
+.DS_Store
