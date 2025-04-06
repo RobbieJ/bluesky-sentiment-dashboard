@@ -1,0 +1,6 @@
+
+requests
+psycopg2-binary
+textblob
+streamlit
+pandas

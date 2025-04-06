@@ -1,0 +1,29 @@
+
+version: '3.8'
+
+services:
+  streamlit:
+    build: .
+    container_name: bluesky-streamlit
+    ports:
+      - "8501:8501"
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  postgres:
+    image: postgres:15
+    container_name: bluesky-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: sentimentdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+volumes:
+  pg_data:
