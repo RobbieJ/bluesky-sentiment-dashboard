@@ -15,7 +15,7 @@ DB_PARAMS = {
 }
 
 def fetch_recent_posts():
-    url = "https://public.api.bsky.app/xrpc/app.bsky.feed.getTimeline"
+    url = "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=jack.bsky.social"
     headers = {"User-Agent": "BlueskySentimentApp/0.1"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
