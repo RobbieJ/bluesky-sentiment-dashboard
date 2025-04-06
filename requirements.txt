@@ -1,6 +1,5 @@
-
-requests
-psycopg2-binary
-textblob
 streamlit
 pandas
+sqlalchemy
+psycopg2-binary
+textblob

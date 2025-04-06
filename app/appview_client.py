@@ -1,59 +1,40 @@
+import streamlit as st
+import pandas as pd
+from sqlalchemy import create_engine
+from sentiment_analysis import analyze_sentiment
 
-# appview_client.py
-# Pulls posts from Bluesky's AppView API for demo purposes
+# PostgreSQL connection using SQLAlchemy
+DB_URI = "postgresql://user:pass@postgres:5432/sentimentdb"
+engine = create_engine(DB_URI)
 
-import requests
-import psycopg2
-from datetime import datetime
-
-DB_PARAMS = {
-    'dbname': 'sentimentdb',
-    'user': 'user',
-    'password': 'pass',
-    'host': 'postgres',
-    'port': 5432
-}
-
-def fetch_recent_posts():
-    url = "https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=jack.bsky.social"
-    headers = {"User-Agent": "BlueskySentimentApp/0.1"}
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        return data.get('feed', [])
-    else:
-        print("Failed to fetch posts:", response.status_code)
-        return []
-
-def store_post(post):
+# Load posts and analyze sentiment
+def load_posts():
     try:
-        conn = psycopg2.connect(**DB_PARAMS)
-        cur = conn.cursor()
-        record = post['post']
-        cur.execute(
-            """
-            INSERT INTO posts (uri, cid, author, text, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (cid) DO NOTHING;
-            """,
-            (
-                record.get('uri'),
-                record.get('cid', record.get('uri')),
-                record.get('author', {}).get('handle', 'unknown'),
-                record.get('text', ''),
-                record.get('indexedAt', datetime.utcnow().isoformat())
-            )
-        )
-        conn.commit()
-        cur.close()
-        conn.close()
+        query = "SELECT text, created_at FROM posts ORDER BY created_at DESC LIMIT 100;"
+        df = pd.read_sql(query, engine)
+        return df
     except Exception as e:
-        print("Database error:", e)
+        st.error(f"Database error: {e}")
+        return pd.DataFrame()
 
+# Streamlit UI
 def main():
-    posts = fetch_recent_posts()
-    for p in posts:
-        store_post(p)
+    st.set_page_config(page_title="Bluesky Sentiment Dashboard", layout="wide")
+    st.title("📊 Bluesky Sentiment Dashboard")
+    
+    df = load_posts()
+    
+    if not df.empty:
+        df['sentiment'] = df['text'].apply(analyze_sentiment)
+        
+        st.subheader("Latest Posts with Sentiment")
+        st.dataframe(df[['created_at', 'sentiment', 'text']])
+
+        st.subheader("📈 Sentiment Distribution")
+        sentiment_counts = df['sentiment'].value_counts()
+        st.bar_chart(sentiment_counts)
+    else:
+        st.warning("No posts available to display.")
 
 if __name__ == "__main__":
     main()
