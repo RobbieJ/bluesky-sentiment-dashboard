@@ -1,0 +1,46 @@
+.env
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+*.swp
+*.swo
+
+# Virtual environments
+venv/
+.env
+.env.*
+
+# Log files
+*.log
+
+# Docker-related
+*.pid
+*.tar
+*.img
+
+# VS Code / JetBrains IDEs
+.vscode/
+.idea/
+
+# Streamlit cache
+.streamlit/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS-generated files
+ehthumbs.db
+Thumbs.db
